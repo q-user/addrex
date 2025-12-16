@@ -1,0 +1,79 @@
+import pytest
+from fastapi.testclient import TestClient
+from unittest.mock import AsyncMock, patch
+from src.main import app
+
+
+client = TestClient(app)
+
+
+def test_create_address_contract_valid_response():
+    """Contract test for POST /address/{phone_number} - valid response structure."""
+    with patch('src.api.dependencies.get_redis_client') as mock_get_redis:
+        mock_redis = AsyncMock()
+        mock_get_redis.return_value.__aenter__.return_value = mock_redis
+        mock_redis.get.return_value = None  # Simulate phone number doesn't exist yet
+        mock_redis.set.return_value = True
+        
+        test_payload = {
+            "address": {
+                "street": "123 Main St",
+                "city": "Anytown",
+                "state_province": "NY",
+                "postal_code": "12345",
+                "country": "US"
+            }
+        }
+        
+        response = client.post("/address/+1234567890", json=test_payload)
+        
+        # Check the response structure
+        assert response.status_code == 201
+        data = response.json()
+        assert "phone" in data
+        assert "address" in data
+        assert isinstance(data["phone"], str)
+        assert isinstance(data["address"], dict)
+
+
+def test_create_address_contract_conflict_response():
+    """Contract test for POST /address/{phone_number} - conflict response when phone exists."""
+    with patch('src.api.dependencies.get_redis_client') as mock_get_redis:
+        mock_redis = AsyncMock()
+        mock_get_redis.return_value.__aenter__.return_value = mock_redis
+        mock_redis.get.return_value = '{"street": "Old St", "city": "Oldtown", "state_province": "OLD", "postal_code": "OLD00", "country": "US", "formatted_address": "Old St, Oldtown, OLD OLD00, US"}'  # Simulate phone number already exists
+        
+        test_payload = {
+            "address": {
+                "street": "123 Main St",
+                "city": "Anytown",
+                "state_province": "NY",
+                "postal_code": "12345",
+                "country": "US"
+            }
+        }
+        
+        response = client.post("/address/+1234567890", json=test_payload)
+        
+        assert response.status_code == 409  # Conflict
+        data = response.json()
+        assert "detail" in data
+
+
+def test_create_address_contract_validation_error():
+    """Contract test for POST /address/{phone_number} - validation error response."""
+    test_payload = {
+        "address": {
+            "street": "A",  # Too short
+            "city": "Anytown",
+            "state_province": "NY",
+            "postal_code": "12345",
+            "country": "US"
+        }
+    }
+    
+    response = client.post("/address/+1234567890", json=test_payload)
+    
+    assert response.status_code == 422  # Validation error
+    data = response.json()
+    assert "detail" in data

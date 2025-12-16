@@ -1,0 +1,268 @@
+openapi: 3.0.3
+info:
+  title: Phonebook API Service
+  description: API for storing and managing phone-to-address mappings with support for Russian phone number formats
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@phonebook-api.example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.phonebook.example.com
+    description: Production server
+
+paths:
+  /address/{phone_number}:
+    get:
+      summary: Retrieve address by phone number
+      description: Retrieve a saved address by phone number
+      operationId: get_address
+      parameters:
+        - name: phone_number
+          in: path
+          required: true
+          description: Phone number in international format (E.164 or Russian format)
+          schema:
+            type: string
+            pattern: "^(\\+?[78][0-9]{10}|\\+[1-9]\\d{1,14})$"
+            example: "+7-912-345-67-89"
+      responses:
+        '200':
+          description: Address found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneAddressResponse'
+              example:
+                phone: "+7-912-345-67-89"
+                address:
+                  street: "Тверская улица, 1"
+                  city: "Москва"
+                  state_province: "Москва"
+                  postal_code: "125001"
+                  country: "RU"
+                  formatted_address: "Тверская улица, 1, Москва, 125001, RU"
+        '404':
+          description: Phone number not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Phone number not found"
+                code: "PHONE_NOT_FOUND"
+    
+    post:
+      summary: Create a new phone-address record
+      description: Register a new phone-address pair in the system. Returns 409 if phone number already exists.
+      operationId: create_address
+      parameters:
+        - name: phone_number
+          in: path
+          required: true
+          description: Phone number in international format (E.164 or Russian format)
+          schema:
+            type: string
+            pattern: "^(\\+?[78][0-9]{10}|\\+[1-9]\\d{1,14})$"
+            example: "+7-912-345-67-89"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAddressRequest'
+            example:
+              address:
+                street: "Тверская улица, 1"
+                city: "Москва"
+                state_province: "Москва"
+                postal_code: "125001"
+                country: "RU"
+      responses:
+        '201':
+          description: Record created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneAddressResponse'
+        '409':
+          description: Phone number already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Phone number already exists"
+                code: "PHONE_EXISTS"
+        '422':
+          description: Invalid input data (phone format or address length)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Phone number format is invalid or address exceeds 300 character limit"
+                code: "VALIDATION_ERROR"
+    
+    put:
+      summary: Update existing phone-address record
+      description: Update the address for an existing phone number
+      operationId: update_address
+      parameters:
+        - name: phone_number
+          in: path
+          required: true
+          description: Phone number in international format (E.164 or Russian format)
+          schema:
+            type: string
+            pattern: "^(\\+?[78][0-9]{10}|\\+[1-9]\\d{1,14})$"
+            example: "+7-912-345-67-89"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAddressRequest'
+            example:
+              address:
+                street: "Новый Арбат, 22"
+                city: "Москва"
+                state_province: "Москва"
+                postal_code: "125002"
+                country: "RU"
+      responses:
+        '200':
+          description: Record updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneAddressResponse'
+        '404':
+          description: Phone number not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Invalid input data (address length)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      summary: Delete a phone-address record
+      description: Remove a phone-address record from the system
+      operationId: delete_address
+      parameters:
+        - name: phone_number
+          in: path
+          required: true
+          description: Phone number in international format (E.164 or Russian format)
+          schema:
+            type: string
+            pattern: "^(\\+?[78][0-9]{10}|\\+[1-9]\\d{1,14})$"
+            example: "+7-912-345-67-89"
+      responses:
+        '204':
+          description: Record deleted successfully
+        '404':
+          description: Phone number not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateAddressRequest:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+    
+    UpdateAddressRequest:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+    
+    PhoneAddressResponse:
+      type: object
+      required:
+        - phone
+        - address
+      properties:
+        phone:
+          type: string
+          pattern: "^(\\+?[78][0-9]{10}|\\+[1-9]\\d{1,14})$"
+          description: Phone number in international format
+          example: "+7-912-345-67-89"
+        address:
+          $ref: '#/components/schemas/Address'
+    
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - state_province
+        - postal_code
+        - country
+      properties:
+        street:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Street address including number and street name
+          example: "Тверская улица, 1"
+        city:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: City name
+          example: "Москва"
+        state_province:
+          type: string
+          minLength: 2
+          maxLength: 30
+          description: State or province name
+          example: "Москва"
+        postal_code:
+          type: string
+          minLength: 3
+          maxLength: 10
+          description: Postal or ZIP code
+          example: "125001"
+        country:
+          type: string
+          minLength: 2
+          maxLength: 30
+          description: Country name
+          example: "RU"
+        formatted_address:
+          type: string
+          maxLength: 300
+          description: Full formatted address string with maximum 300 characters
+          example: "Тверская улица, 1, Москва, 125001, RU"
+    
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Phone number not found"
+        code:
+          type: string
+          description: Error code
+          example: "PHONE_NOT_FOUND"

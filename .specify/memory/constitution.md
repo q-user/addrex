@@ -1,50 +1,39 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version change: 1.6.0 → 1.6.1
+Added sections: Updated Development Workflow to include absolute import and test coverage requirements
+Modified principles: Enhanced Development Workflow principle
+Templates requiring updates: ⚠ pending - plan-template.md, spec-template.md, tasks-template.md need review
+Follow-up TODOs: Complete performance and concurrency testing tasks (T062-T063) in tasks.md
+-->
+# Phonebook API Service Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### API-First Design
+Every feature starts with a well-defined API contract; APIs must be self-documented, follow RESTful principles, have clear purpose - no internal-only endpoints without external contracts
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Data Persistence via Redis
+All data operations must go through Redis; Key-value store patterns: phone as key → address as value; Support both JSON and plain text formats
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Test-Driven Development (NON-NEGOTIABLE)
+TDD mandatory: Feature requirements defined → Unit tests written → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced; All functionality must have corresponding tests before implementation; Test coverage must exceed 85%
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### FastAPI Framework Compliance
+Focus areas requiring FastAPI best practices: Request/response validation with Pydantic models, Proper status codes, Type hints for all endpoints, Async support for Redis operations
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Performance & Scalability
+Redis caching ensures low latency; Response times under 100ms for 95% of requests; Support for high-throughput scenarios with proper connection pooling
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Stack
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Python 3.14+, uv for package management, pyproject.toml for project configuration, FastAPI, Redis, Docker for containerization, Pydantic for request/response validation, AsyncIO for non-blocking operations
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Code review requirements: All PRs must include tests; Testing gates: Coverage over 85%, All tests passing; Deployment: CI/CD pipeline with health checks; Package management via uv with pyproject.toml configuration; Dependencies managed exclusively through pyproject.toml; Import paths must not contain 'src' prefix and must use absolute imports (e.g., 'from phonebook_api.services.phonebook_service import PhoneBookService' rather than relative imports or 'src' prefixed paths); Ruff must be run on all files after any updates to ensure code formatting and linting compliance; All tools (ruff, pytest, mypy, etc.) must be executed via uv (e.g., 'uv run ruff', 'uv run pytest'); Line lengths must be 120 characters maximum
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+All PRs/reviews must verify compliance with API contracts; Complexity must be justified with performance benchmarks; Use FastAPI documentation for runtime development guidance; All projects must use uv and pyproject.toml for dependency management
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.6.1 | **Ratified**: 2025-12-16 | **Last Amended**: 2025-12-16
