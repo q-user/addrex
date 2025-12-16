@@ -1,5 +1,4 @@
-import pytest
-from src.utils.validators import validate_phone_format, normalize_phone_number, validate_address_length
+from utils.validators import normalize_phone_number, validate_address_length, validate_phone_format
 
 
 def test_validate_phone_format_valid_e164():

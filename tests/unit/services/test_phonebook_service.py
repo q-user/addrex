@@ -1,6 +1,8 @@
-import pytest
 from unittest.mock import AsyncMock
-from src.services.phonebook_service import PhoneBookService
+
+import pytest
+
+from services.phonebook_service import PhoneBookService
 
 
 @pytest.mark.asyncio
@@ -10,20 +12,20 @@ async def test_create_address_success():
     mock_redis = AsyncMock()
     mock_redis.get.return_value = None  # Phone doesn't exist
     mock_redis.set.return_value = True
-    
+
     service = PhoneBookService(mock_redis)
     result = await service.create_address(
-        "+1234567890", 
+        "+1234567890",
         {
-            "street": "123 Main St", 
-            "city": "Anytown", 
-            "state_province": "NY", 
-            "postal_code": "12345", 
+            "street": "123 Main St",
+            "city": "Anytown",
+            "state_province": "NY",
+            "postal_code": "12345",
             "country": "US",
             "formatted_address": "123 Main St, Anytown, NY 12345, US"
         }
     )
-    
+
     assert result is True
     mock_redis.get.assert_called_once_with("+1234567890")
     mock_redis.set.assert_called_once()

@@ -1,11 +1,12 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from phonebook_api.api.dependencies import get_redis_client
-from phonebook_api.models.address import Address
-from phonebook_api.services.phonebook_service import PhoneBookService
-from phonebook_api.utils.validators import normalize_phone_number, validate_phone_format
 from redis.asyncio import Redis
+
+from api.dependencies import get_redis_client
+from models.address import Address
+from services.phonebook_service import PhoneBookService
+from utils.validators import normalize_phone_number, validate_phone_format
 
 router = APIRouter()
 

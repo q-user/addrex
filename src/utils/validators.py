@@ -1,5 +1,7 @@
-ADDRESS_MAX_LENGTH = 300  # Maximum length for address in characters
 import re
+
+ADDRESS_MAX_LENGTH = 300  # Maximum length for address in characters
+
 
 
 def validate_phone_format(phone_number: str) -> bool:
@@ -12,20 +14,25 @@ def validate_phone_format(phone_number: str) -> bool:
         True if format is valid, False otherwise
 
     """
-    # E.164 format: +[country code][number], e.g., +1234567890
-    e164_pattern = r'^\+[1-9]\d{1,14}$'
-
-    # Russian mobile format: +7XXXXXXXXXX, e.g., +79123456789
+    # Russian mobile format: +7XXXXXXXXXX, e.g., +79123456789 (exactly 11 digits after +7)
     russian_mobile_pattern = r'^\+7\d{10}$'
 
     # Alternative Russian format: 8XXXXXXXXXX, e.g., 89123456789
     russian_alt_pattern = r'^8\d{10}$'
 
-    return (
-        bool(re.match(e164_pattern, phone_number))
-        or bool(re.match(russian_mobile_pattern, phone_number))
-        or bool(re.match(russian_alt_pattern, phone_number))
-    )
+    # For non-Russian numbers, use E.164 format: +[country code][number], with min 7 digits after country code for Russian numbers
+    e164_pattern = r'^\+[1-9]\d{1,14}$'
+
+    # Check if it's a Russian number starting with +7 or 8
+    if phone_number.startswith('+7'):
+        # For +7 numbers, it must have exactly 11 digits after the +7
+        return bool(re.match(russian_mobile_pattern, phone_number))
+    elif phone_number.startswith('8'):
+        # For 8 numbers (alternative Russian), it must have exactly 10 digits after the 8
+        return bool(re.match(russian_alt_pattern, phone_number))
+    else:
+        # For non-Russian numbers, check E.164
+        return bool(re.match(e164_pattern, phone_number))
 
 
 def normalize_phone_number(phone_number: str) -> str | None:

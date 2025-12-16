@@ -1,6 +1,6 @@
-import pytest
 from fastapi import HTTPException
-from src.api.dependencies import handle_error
+
+from api.dependencies import handle_error
 
 
 def test_handle_error_creates_http_exception():
@@ -16,7 +16,7 @@ def test_handle_error_with_different_codes():
     error_400 = handle_error(400, "Bad Request")
     assert error_400.status_code == 400
     assert error_400.detail == "Bad Request"
-    
+
     error_500 = handle_error(500, "Internal Server Error")
     assert error_500.status_code == 500
     assert error_500.detail == "Internal Server Error"

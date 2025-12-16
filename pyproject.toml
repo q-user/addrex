@@ -37,6 +37,7 @@ dev = [
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = ["-v", "--cov=src", "--cov-report=html"]
+pythonpath = ["src"]
 
 [tool.mypy]
 python_version = "3.14"

@@ -1,3 +1,4 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -9,8 +10,7 @@ class Settings(BaseSettings):
     log_level: str = 'INFO'
     api_version: str = 'v1'
 
-    class Config:
-        env_file = '.env'
+    model_config = ConfigDict(extra='allow', env_file='.env')
 
 
 settings = Settings()

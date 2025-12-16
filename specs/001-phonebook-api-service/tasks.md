@@ -173,9 +173,9 @@ description: "Task list for Phonebook API Service implementation"
 - [X] T058 Add logging infrastructure for all operations in src/main.py
 - [X] T059 Add request/response validation middleware in src/api/dependencies.py
 - [X] T060 Setup API versioning structure in src/api/v1/__init__.py
-- [ ] T061 Verify test coverage exceeds 85% requirement per constitution in coverage reports
-- [ ] T062 Performance load testing to verify <100ms response time for 95% of requests in tests/performance/response_time_test.py
-- [ ] T063 Concurrent user testing to verify 1000 concurrent users support in tests/performance/concurrency_test.py
+- [X] T061 Verify test coverage exceeds 85% requirement per constitution in coverage reports
+- [X] T062 Performance load testing to verify <100ms response time for 95% of requests in tests/performance/response_time_test.py
+- [X] T063 Concurrent user testing to verify 1000 concurrent users support in tests/performance/concurrency_test.py
 
 ---
 

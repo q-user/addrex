@@ -16,11 +16,11 @@ from api.v1.routes.delete_address import router as delete_address_router
 from api.v1.routes.get_address import router as get_address_router
 from api.v1.routes.update_address import router as update_address_router
 
-# Include routes in the app with v1 prefix
-app.include_router(get_address_router, prefix='/v1', tags=['address'])
-app.include_router(create_address_router, prefix='/v1', tags=['address'])
-app.include_router(update_address_router, prefix='/v1', tags=['address'])
-app.include_router(delete_address_router, prefix='/v1', tags=['address'])
+# Include routes in the app without prefix, following OpenAPI spec
+app.include_router(get_address_router, tags=['address'])
+app.include_router(create_address_router, tags=['address'])
+app.include_router(update_address_router, tags=['address'])
+app.include_router(delete_address_router, tags=['address'])
 
 
 @app.get('/')

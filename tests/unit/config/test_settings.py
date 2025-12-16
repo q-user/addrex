@@ -1,4 +1,4 @@
-from src.config.settings import Settings
+from config.settings import Settings
 
 
 def test_settings_default_values():
@@ -15,14 +15,14 @@ def test_settings_default_values():
 def test_settings_custom_values():
     """Test that settings can be overridden."""
     import os
-    
+
     # Temporarily set environment variables
     os.environ["APP_NAME"] = "Test API"
     os.environ["REDIS_HOST"] = "testhost"
-    
+
     # Note: In a real test, we would properly override values in testing
     # For now, let's just test default behavior
-    
+
     # Clean up environment variables after test
     if "APP_NAME" in os.environ:
         del os.environ["APP_NAME"]

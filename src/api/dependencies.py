@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from fastapi import HTTPException
 from redis.asyncio import Redis
 
-from .settings import settings
+from config.settings import settings
 
 # Set up logging
 logger = logging.getLogger(__name__)
