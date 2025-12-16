@@ -116,7 +116,7 @@ Value: {"street": "Тверская улица, 1", "city": "Москва", "sta
 - Phone number uniqueness enforced by Redis key structure
 - Address validation ensures data quality with 300-character limit
 - Error handling for malformed input with appropriate response codes
-- Duplicate phone number prevention during create operations
+- Russian format validation errors return specific error messages
 
 ### Error Handling
 - Invalid phone numbers return specific error codes

@@ -53,7 +53,7 @@ paths:
               example:
                 error: "Phone number not found"
                 code: "PHONE_NOT_FOUND"
-    
+
     post:
       summary: Create a new phone-address record
       description: Register a new phone-address pair in the system. Returns 409 if phone number already exists.
@@ -105,7 +105,7 @@ paths:
               example:
                 error: "Phone number format is invalid or address exceeds 300 character limit"
                 code: "VALIDATION_ERROR"
-    
+
     put:
       summary: Update existing phone-address record
       description: Update the address for an existing phone number
@@ -151,7 +151,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    
+
     delete:
       summary: Delete a phone-address record
       description: Remove a phone-address record from the system
@@ -184,7 +184,7 @@ components:
       properties:
         address:
           $ref: '#/components/schemas/Address'
-    
+
     UpdateAddressRequest:
       type: object
       required:
@@ -192,7 +192,7 @@ components:
       properties:
         address:
           $ref: '#/components/schemas/Address'
-    
+
     PhoneAddressResponse:
       type: object
       required:
@@ -206,7 +206,7 @@ components:
           example: "+7-912-345-67-89"
         address:
           $ref: '#/components/schemas/Address'
-    
+
     Address:
       type: object
       required:
@@ -251,7 +251,7 @@ components:
           maxLength: 300
           description: Full formatted address string with maximum 300 characters
           example: "Тверская улица, 1, Москва, 125001, RU"
-    
+
     ErrorResponse:
       type: object
       required:

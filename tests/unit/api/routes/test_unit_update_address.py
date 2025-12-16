@@ -7,7 +7,13 @@ import pytest
 from fastapi import HTTPException
 
 from api.v1.routes.update_address import update_address
+from models.address import Address
+from models.api_models import CreateAddressRequest
 from services.phonebook_service import PhoneBookService
+
+
+def _make_request(data: dict) -> CreateAddressRequest:
+    return CreateAddressRequest(address=Address(**data))
 
 
 @pytest.mark.asyncio
@@ -39,7 +45,8 @@ async def test_update_address_valid_request():
 
     # Act
     with mock.patch('api.v1.routes.update_address.PhoneBookService', return_value=mock_service):
-        result = await update_address(phone_number, address_data, mock_redis_client)
+        request_data = _make_request(address_data)
+        result = await update_address(phone_number, request_data, mock_redis_client)
 
     # Assert
     assert result == {"phone": phone_number, "address": expected_address_data}
@@ -67,7 +74,8 @@ async def test_update_address_not_found():
     # Act & Assert
     with mock.patch('api.v1.routes.update_address.PhoneBookService', return_value=mock_service):
         with pytest.raises(HTTPException) as exc_info:
-            await update_address(phone_number, address_data, mock_redis_client)
+            request_data = _make_request(address_data)
+            await update_address(phone_number, request_data, mock_redis_client)
 
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail == "Phone number not found"
@@ -91,7 +99,8 @@ async def test_update_address_invalid_phone_format():
     with mock.patch('api.v1.routes.update_address.validate_phone_format', return_value=False):
         with mock.patch('api.v1.routes.update_address.normalize_phone_number', return_value=None):
             with pytest.raises(HTTPException) as exc_info:
-                await update_address(phone_number, address_data, mock_redis_client)
+                request_data = _make_request(address_data)
+                await update_address(phone_number, request_data, mock_redis_client)
 
     # Assert
     assert exc_info.value.status_code == 422
@@ -130,7 +139,8 @@ async def test_update_address_with_normalized_phone():
             mock_service.update_address = AsyncMock(return_value=True)
 
             with mock.patch('api.v1.routes.update_address.PhoneBookService', return_value=mock_service):
-                result = await update_address(original_phone, address_data, mock_redis_client)
+                request_data = _make_request(address_data)
+                result = await update_address(original_phone, request_data, mock_redis_client)
 
     # Assert
     assert result == {"phone": normalized_phone, "address": expected_address_data}
@@ -142,18 +152,21 @@ async def test_update_address_invalid_address_data():
     """Test update_address with invalid address data."""
     # Arrange
     phone_number = "+1234567890"
-    invalid_address_data = {
-        "street": "A",  # Too short
+    # This data is valid for the Address model, but we will mock the request model to fail
+    address_data = {
+        "street": "456 Oak Ave",
         "city": "Newtown",
         "state_province": "CA",
         "postal_code": "54321",
         "country": "US"
     }
     mock_redis_client = AsyncMock()
+    request_data = _make_request(address_data)
 
     # Act & Assert
     with pytest.raises(HTTPException) as exc_info:
-        await update_address(phone_number, invalid_address_data, mock_redis_client)
+        with mock.patch('models.address.Address.model_dump', side_effect=Exception('Validation failed')):
+            await update_address(phone_number, request_data, mock_redis_client)
 
     assert exc_info.value.status_code == 422
-    assert "Invalid address data" in exc_info.value.detail
+    assert "Invalid address data" in str(exc_info.value.detail)

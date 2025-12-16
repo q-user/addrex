@@ -1,5 +1,4 @@
 import logging
-from collections.abc import AsyncGenerator
 
 from fastapi import HTTPException
 from redis.asyncio import Redis
@@ -25,13 +24,19 @@ async def get_redis_pool():
     return redis_pool
 
 
-async def get_redis_client() -> AsyncGenerator[Redis]:
-    redis_client = await get_redis_pool()
-    try:
-        yield redis_client
-    finally:
-        # Don't close the pool as it's shared across requests
-        pass
+async def get_redis_client() -> Redis:
+    """Return a shared Redis client instance."""
+    return await get_redis_pool()
+
+
+async def redis_client_dependency() -> Redis:
+    """Wrapper to allow dynamic monkeypatching of get_redis_client in tests."""
+    return await get_redis_client()
+
+
+async def redis_client_provider() -> Redis:
+    """Indirect provider so tests patching `redis_client_dependency` take effect."""
+    return await redis_client_dependency()
 
 
 # Error handling infrastructure
@@ -45,8 +50,8 @@ def handle_error(error_code: int, message: str):
 # Request/Response validation and logging middleware components
 def log_request_response(
     endpoint_name: str,
-    request_data: dict = None,
-    response_data: dict = None,
+    request_data: dict | None = None,
+    response_data: dict | None = None,
 ):
     """Log request and response data for monitoring and debugging."""
     if request_data:

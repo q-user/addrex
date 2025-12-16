@@ -12,7 +12,7 @@ Research summary for the Phonebook API Service implementation, addressing techno
 
 ### 1. Language and Runtime
 **Decision**: Python 3.14 with uv package manager
-**Rationale**: 
+**Rationale**:
 - Python is ideal for web APIs with excellent FastAPI support
 - Version 3.14 provides latest features and performance improvements
 - uv offers faster dependency resolution than pip

@@ -1,19 +1,19 @@
 from unittest.mock import AsyncMock, patch
 
-from fastapi.testclient import TestClient
+import pytest
+from httpx import ASGITransport, AsyncClient
 
 from main import app
 
-client = TestClient(app)
 
-
-def test_create_address_integration_success():
+@pytest.mark.asyncio
+async def test_create_address_integration_success():
     """Integration test for creating a new phone-address record - success case."""
-    with patch('api.dependencies.get_redis_client') as mock_get_redis:
+    with patch('api.dependencies.redis_client_dependency', new_callable=AsyncMock) as mock_dep:
         mock_redis = AsyncMock()
-        mock_get_redis.return_value.__aenter__.return_value = mock_redis
-        mock_redis.get.return_value = None  # Phone doesn't exist yet
-        mock_redis.set.return_value = True
+        mock_dep.return_value = mock_redis
+        mock_redis.get = AsyncMock(return_value=None)  # Phone doesn't exist yet
+        mock_redis.set = AsyncMock(return_value=True)  # для успеха
 
         test_payload = {
             "address": {
@@ -25,7 +25,8 @@ def test_create_address_integration_success():
             }
         }
 
-        response = client.post("/address/+1234567890", json=test_payload)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/address/+1234567890", json=test_payload)
 
         assert response.status_code == 201
         data = response.json()
@@ -34,13 +35,13 @@ def test_create_address_integration_success():
         assert data["address"]["city"] == "Anytown"
 
 
-def test_create_address_integration_conflict():
+@pytest.mark.asyncio
+async def test_create_address_integration_conflict():
     """Integration test for creating a new phone-address record - conflict case."""
-    with patch('api.dependencies.get_redis_client') as mock_get_redis:
+    with patch('api.dependencies.redis_client_dependency', new_callable=AsyncMock) as mock_dep:
         mock_redis = AsyncMock()
-        mock_get_redis.return_value.__aenter__.return_value = mock_redis
-        # Simulate that the phone number already exists
-        mock_redis.get.return_value = '{"street": "Old St", "city": "Oldtown", "state_province": "OLD", "postal_code": "OLD00", "country": "US", "formatted_address": "Old St, Oldtown, OLD OLD00, US"}'
+        mock_dep.return_value = mock_redis
+        mock_redis.get = AsyncMock(return_value='{"street": "Old St", "city": "Oldtown", "state_province": "OLD", "postal_code": "OLD00", "country": "US", "formatted_address": "Old St, Oldtown, OLD OLD00, US"}')
 
         test_payload = {
             "address": {
@@ -52,14 +53,16 @@ def test_create_address_integration_conflict():
             }
         }
 
-        response = client.post("/address/+1234567890", json=test_payload)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/address/+1234567890", json=test_payload)
 
         assert response.status_code == 409  # Conflict
         data = response.json()
         assert "detail" in data
 
 
-def test_create_address_integration_invalid_phone():
+@pytest.mark.asyncio
+async def test_create_address_integration_invalid_phone():
     """Integration test for creating a record with invalid phone format."""
     test_payload = {
         "address": {
@@ -71,18 +74,20 @@ def test_create_address_integration_invalid_phone():
         }
     }
 
-    response = client.post("/address/invalid_phone", json=test_payload)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/address/invalid_phone", json=test_payload)
 
     # Should return a validation error
     assert response.status_code == 422
 
 
-def test_create_address_integration_invalid_address():
+@pytest.mark.asyncio
+async def test_create_address_integration_invalid_address():
     """Integration test for creating a record with invalid address data."""
-    with patch('api.dependencies.get_redis_client') as mock_get_redis:
+    with patch('api.dependencies.redis_client_dependency', new_callable=AsyncMock) as mock_dep:
         mock_redis = AsyncMock()
-        mock_get_redis.return_value.__aenter__.return_value = mock_redis
-        mock_redis.get.return_value = None  # Phone doesn't exist yet
+        mock_dep.return_value = mock_redis
+        mock_redis.get = AsyncMock(return_value=None)  # Phone doesn't exist yet
 
         test_payload = {
             "address": {
@@ -94,6 +99,7 @@ def test_create_address_integration_invalid_address():
             }
         }
 
-        response = client.post("/address/+1234567890", json=test_payload)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post("/address/+1234567890", json=test_payload)
 
         assert response.status_code == 422  # Validation error

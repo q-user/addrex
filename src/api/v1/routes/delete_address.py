@@ -1,7 +1,9 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from redis.asyncio import Redis
 
-from api.dependencies import get_redis_client
+from api.dependencies import redis_client_provider
 from services.phonebook_service import PhoneBookService
 from utils.validators import normalize_phone_number, validate_phone_format
 
@@ -11,7 +13,7 @@ router = APIRouter()
 @router.delete('/address/{phone_number}')
 async def delete_address(
     phone_number: str,
-    redis_client: Redis = Depends(get_redis_client),
+    redis_client: Annotated[Redis, Depends(redis_client_provider)],
 ):
     """Delete a phone-address record.
 
@@ -29,7 +31,7 @@ async def delete_address(
         normalized = normalize_phone_number(phone_number)
         if not normalized:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f'Invalid phone number format: {phone_number}. '
                 + 'Must follow E.164 or Russian format (+7XXXXXXXXXX or 8XXXXXXXXXX)',
             )
