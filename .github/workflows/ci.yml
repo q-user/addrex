@@ -10,17 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
     - uses: actions/checkout@v4
 
@@ -35,8 +24,11 @@ jobs:
     - name: Install dependencies
       run: uv pip install --system -e '.[dev]'
 
-    - name: Run tests
-      run: pytest
-      env:
-        REDIS_HOST: localhost
-        REDIS_PORT: 6379
+    - name: Run tests and generate coverage report
+      run: pytest --cov=src --cov-report=xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # Optional: for private repos
+        fail_ci_if_error: true

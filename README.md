@@ -1,6 +1,7 @@
 # Addrex
 
 [![CI](https://github.com/q-user/addrex/actions/workflows/ci.yml/badge.svg)](https://github.com/q-user/addrex/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/q-user/addrex/graph/badge.svg?token=YOUR_CODECOV_TOKEN_PLACEHOLDER)](https://codecov.io/gh/q-user/addrex)
 
 A microservice for storing and managing phone-to-address mappings.
 
