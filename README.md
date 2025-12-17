@@ -1,5 +1,7 @@
 # Addrex
 
+[![CI](https://github.com/q-user/addrex/actions/workflows/ci.yml/badge.svg)](https://github.com/q-user/addrex/actions/workflows/ci.yml)
+
 A microservice for storing and managing phone-to-address mappings.
 
 ## Overview
