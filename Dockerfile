@@ -5,11 +5,13 @@ WORKDIR /app
 # Copy project files
 COPY pyproject.toml .
 
+# Copy source before editable install so setuptools finds the package
+COPY src/ src/
+
 # Install dependencies using uv
 RUN uv pip install --system --no-cache -e .
 
-# Copy the rest of the application code
-COPY src/ src/
+# Copy the rest of the application code (non-code assets)
 COPY README.md .
 
 EXPOSE 8000

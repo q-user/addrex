@@ -28,7 +28,7 @@ This service provides CRUD operations for phone-to-address mappings using FastAP
 ### Using Docker
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 The API will be available at: `http://localhost:8000`

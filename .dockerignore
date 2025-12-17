@@ -18,7 +18,6 @@ coverage.xml
 *.log
 .git
 .dockerignore
-README.md
 Dockerfile
 .dockerfile
 .svn
