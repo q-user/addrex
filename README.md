@@ -1,6 +1,6 @@
-# Phonebook API Service
+# Addrex
 
-A microservice for storing and managing phone-to-address mappings with support for Russian phone number formats.
+A microservice for storing and managing phone-to-address mappings.
 
 ## Overview
 
